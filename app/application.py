@@ -1,2 +1,4 @@
-def hw(name=None):
-    return 'hello flocu'
+import uuid
+
+def generate_key():
+    return uuid.uuid4()

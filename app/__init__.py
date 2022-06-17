@@ -1,5 +1,5 @@
 """
-flocu.
+leo.
 
 A command line tool to manage in-context documentation.
 """
