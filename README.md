@@ -5,3 +5,5 @@
 3. Docs must be easy to read/change (command line interface: yes, mouse+browser: no)
 4. Docs must be peer-reviewed (must belong to the PR workflow)
 5. Docs must be as anonymous as code is (who-contributed-what: yes, I-wrote-this-document: no)
+
+...
