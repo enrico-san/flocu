@@ -5,8 +5,10 @@ import os
 import pickledb
 import pyperclip
 from traitlets import default
+import os
 
-EDITOR = 'abricotine'
+HOME = os.environ['HOME']
+EDITOR = 'typora'
 db = pickledb.load('~/.leo/pickle.json', True)
 
 @click.group()
@@ -43,8 +45,36 @@ def edit(key, name):
             d = db.get(entry)
             if 'name' in d and d['name'] == name:
                 key = entry
+                print(f'found key {key} for special name {name}')
                 break
     call(f'{EDITOR} ~/.leo/{key}.md', shell=True, stderr=PIPE)
+
+@cli.command()
+@click.option('-k', '--key', type=str, help='Key to show')
+@click.option('-n', '--name', type=str, help='Special name to show')
+def show(key, name):
+    key_clpb = pyperclip.paste()
+    if not key and not name:
+        if application.is_key(key_clpb):
+            key = key_clpb
+            click.echo('Taking key from the clipboard...')
+        else:
+            click.echo('Input a key (-k) or a special name (-n)')
+            return
+    if key and not db.get(key):
+        click.echo('Key does not exist')
+        return
+    if name:
+        for entry in db.getall():
+            d = db.get(entry)
+            if 'name' in d and d['name'] == name:
+                key = entry
+                break
+    if name and not db.get(key):
+        click.echo('Name does not exist')
+        return
+    with open(f'{HOME}/.leo/{key}.md', 'r') as f:
+        print('\n', f.read(), '\n')
 
 @cli.command()
 @click.option('-r', '--recursive', type=str, help='Search keys in this folder and descendants')
