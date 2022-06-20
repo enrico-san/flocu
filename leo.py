@@ -4,12 +4,12 @@ from subprocess import call, PIPE
 import os
 import pickledb
 import pyperclip
-from traitlets import default
-import os
+import mimetypes
 
 HOME = os.environ['HOME']
+LEO_ROOT = 'leo-tmp'
 EDITOR = 'typora'
-db = pickledb.load('~/.leo/pickle.json', True)
+db = pickledb.load(f'{HOME}/{LEO_ROOT}/pickle.json', True)
 
 @click.group()
 def cli():
@@ -47,7 +47,7 @@ def edit(key, name):
                 key = entry
                 print(f'found key {key} for special name {name}')
                 break
-    call(f'{EDITOR} ~/.leo/{key}.md', shell=True, stderr=PIPE)
+    call(f'{EDITOR} {HOME}/{LEO_ROOT}/{key}.md', shell=True, stderr=PIPE)
 
 @cli.command()
 @click.option('-k', '--key', type=str, help='Key to show')
@@ -61,7 +61,7 @@ def show(key, name):
         else:
             click.echo('Input a key (-k) or a special name (-n)')
             return
-    if key and not db.get(key):
+    if key and db.get(key) == False:
         click.echo('Key does not exist')
         return
     if name:
@@ -73,7 +73,7 @@ def show(key, name):
     if name and not db.get(key):
         click.echo('Name does not exist')
         return
-    with open(f'{HOME}/.leo/{key}.md', 'r') as f:
+    with open(f'{HOME}/{LEO_ROOT}/{key}.md', 'r') as f:
         print('\n', f.read(), '\n')
 
 @cli.command()
@@ -81,6 +81,10 @@ def show(key, name):
 @click.option('-v', '--verbose', help='Show key value too if the line has a special name', is_flag=True)
 def ls(recursive, verbose):
     for file in next(os.walk('.'))[2]:
+        t1, t2 = mimetypes.guess_type(file)
+        if t1 != None and not t1.startswith('text'):
+            continue
+
         for line in open(file):
             k = application.match_key(line)
             if not k:
